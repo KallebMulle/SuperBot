@@ -1,0 +1,58 @@
+// This is the Prisma schema for the SuperBot database.
+
+// Data model for User
+model User {
+  id           Int             @id @default(autoincrement())
+  username     String          @unique
+  email        String          @unique
+  passwordHash  String
+  twoFactorSecret String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  alerts       Alert[]         @relation("UserAlerts")
+  bets         Bet[]           @relation("UserBets")
+  notificationLogs NotificationLog[] @relation("UserNotifications")
+  auditLogs    AuditLog[]      @relation("UserAuditLogs")
+}
+
+// Data model for Alert
+model Alert {
+  id          Int      @id @default(autoincrement())
+  type        String
+  message     String
+  userId      Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation("UserAlerts", fields: [userId], references: [id])
+}
+
+// Data model for Bet
+model Bet {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  amount      Float
+  odds        Float
+  status      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation("UserBets", fields: [userId], references: [id])
+}
+
+// Data model for NotificationLog
+model NotificationLog {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  message     String
+  type        String
+  createdAt   DateTime @default(now())
+  user        User     @relation("UserNotifications", fields: [userId], references: [id])
+}
+
+// Data model for AuditLog
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  action      String
+  createdAt   DateTime @default(now())
+  user        User     @relation("UserAuditLogs", fields: [userId], references: [id])
+}
